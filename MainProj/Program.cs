@@ -1,9 +1,12 @@
-﻿namespace MainProj
+﻿using MainProj.Data;
+
+namespace MainProj
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
              * 1 - Создание (инициализация) таблицы\базы данных
@@ -17,10 +20,11 @@
             if (args.Length > 0)
             {
                 var action = args[0];
+                
                 switch (action)
                 {
                     case "1":
-                        Console.WriteLine($"Обработка события {action}");
+                        Console.WriteLine($"Обработка события {action}");                        
                         //Создание бд если еще не создана
                         break;
                     case "2":
@@ -51,6 +55,10 @@
                         break;
                     case "6":
                         Console.WriteLine($"Обработка события {action}");
+                        break;
+                    case "7":
+                        Console.WriteLine($"Удаление БД и {action}");
+                        
                         break;
                     default:
                         Console.WriteLine("Вы выбрали неизвестное действие.");
