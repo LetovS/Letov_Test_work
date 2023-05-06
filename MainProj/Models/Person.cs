@@ -11,6 +11,7 @@ namespace MainProj.Models
     /// </summary>
     internal class Person
     {
+        public int PersonID { get; set; }
         /// <summary>
         /// Имя.
         /// </summary>
@@ -26,7 +27,7 @@ namespace MainProj.Models
         /// <summary>
         /// Дата рождения (только дата).
         /// </summary>
-        public DateOnly Bithday { get; set; }
+        public DateTime Bithday { get; set; }
         /// <summary>
         /// Пол.
         /// </summary>
