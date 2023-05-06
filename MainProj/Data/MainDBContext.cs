@@ -6,37 +6,25 @@ namespace MainProj.Data
 {
     internal class MainDBContext : DbContext
     {
-        private bool IsCreated { get; set; } = false;
-        
+        private bool isCreated { get; set; }
         public DbSet<Person>? Persons { get; set; } 
         public MainDBContext()
-        {            
-            IsCreated = CheckIsCreatedDB();
-            if (!IsCreated)
+        {
+            isCreated = IsCreated();
+            if (!isCreated)
             {
                 Database.EnsureCreated();
                 //TODO записать в файл настроек тру
                 ChangeCreatedDBStatus(isCreated: true);
             }
         }
-        /// <summary>
-        /// Проверка создания БД.
-        /// </summary>
-        /// <returns>bool</returns>
-        private bool CheckIsCreatedDB()
-        {
-            if (File.Exists("settings.txt"))
-            {
-                using var sr = new StreamReader("settings.txt");
-                if (sr.ReadToEnd() == "true") return true;
-            }
-            return false;
-        }
+        
 
         private void ChangeCreatedDBStatus(bool isCreated)
         {
             if (isCreated)
-            {                
+            {
+                isCreated = true;
                 string path = "settings.txt";
                 using var sw = new StreamWriter(path);
                 sw.Write("true");
@@ -48,20 +36,31 @@ namespace MainProj.Data
             optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LetovTestDB;");
         }
 
-        internal void EnsureDeleteDB()
+        internal bool EnsureDeleteDB()
         {
-            if (IsCreated)
+            if (isCreated)
             {
                 //удалить бд
                 Database.EnsureDeleted();
                 // изменить флаг
-                IsCreated = false;
+                isCreated = false;
                 // записать false в файл
-                using var sw = new StreamWriter("settings.txt");
+                using var sw = new StreamWriter("settings.txt", false);
                 sw.Write("false");
+                return true;
             }
             else
                 throw new ArgumentException("Database wasn't creating.");
+        }
+
+        internal static bool IsCreated()
+        {
+            string path = "settings.txt";
+            // прочесть настройки, если нет или false создаем
+            if (File.Exists(path) && File.ReadAllText(path) == "true")
+                return true;            
+            // если true не создаем
+            return false;
         }
     }
 }
