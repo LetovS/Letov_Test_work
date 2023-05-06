@@ -33,5 +33,19 @@ namespace MainProj.Models
         /// </summary>
         public string Gender { get; set; } = "None";
 
+        public override bool Equals(object? obj)
+        {
+            if (obj != null && obj is Person person)
+            {
+                if (this.LastName == person.LastName && this.FirstName == person.FirstName &&
+                    this.MiddleName == person.MiddleName && this.Bithday == person.Bithday)
+                {
+                    return true;
+                }
+                else
+                    return false;
+            }
+            throw new InvalidCastException();
+        }
     }
 }
