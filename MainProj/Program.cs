@@ -4,8 +4,9 @@ namespace MainProj
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] args )
         {
+            //string[] args = { "7" };
             
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
@@ -24,8 +25,13 @@ namespace MainProj
                 switch (action)
                 {
                     case "1":
-                        Console.WriteLine($"Обработка события {action}");                        
-                        //Создание бд если еще не создана
+                        if (!MainDBContext.IsCreated())
+                        {
+                            var db = new MainDBContext();
+                            Console.WriteLine("Database was create.");
+                        }
+                        else
+                            Console.WriteLine("Database already create.");
                         break;
                     case "2":
                         Console.WriteLine($"Обработка события {action}");
@@ -58,7 +64,18 @@ namespace MainProj
                         break;
                     case "7":
                         Console.WriteLine($"Удаление БД и {action}");
-                        
+                        if (MainDBContext.IsCreated())
+                        {                            
+                            try
+                            {
+                                new MainDBContext().EnsureDeleteDB();
+                                Console.WriteLine("Успешно.");
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
                         break;
                     default:
                         Console.WriteLine("Вы выбрали неизвестное действие.");
@@ -68,6 +85,11 @@ namespace MainProj
             else
                 Console.WriteLine("No action set");
 
+        }
+
+        private static void CreatedDB()
+        {
+            using var db = new MainDBContext();
         }
     }
 }
