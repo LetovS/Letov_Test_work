@@ -1,4 +1,5 @@
 ﻿using MainProj.Data;
+using MainProj.Models;
 
 namespace MainProj
 {
@@ -6,7 +7,7 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-            //string[] args = { "7" };
+            //string[] args = { "2", "LetovSergeyMichailovich", "30.10.1987", "Male" };
             
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
@@ -35,9 +36,34 @@ namespace MainProj
                         break;
                     case "2":
                         Console.WriteLine($"Обработка события {action}");
-                        if (args.Length == 2)
+                        if (args.Length > 1)
                         {
-                            Console.WriteLine("Входящий параметр есть: " + args[1]);
+                            // распарсить входящую строку
+                            string [] values = ParseInputString(args);
+                            // создать персону
+                            DateTime date = DateTime.Parse(values[3]);
+                            var person = new Person()
+                            {
+                                LastName = values[0],
+                                FirstName = values[1],
+                                MiddleName = values[2],
+                                Bithday = date, 
+                                Gender = values[4]
+                            };
+                            // проверить есть ли в БД
+                            using var db = new MainDBContext();
+
+                            var collections = db.Persons!.ToList();
+                            
+                            if (!collections.Contains(person))
+                            {
+                                db.Persons!.Add(person);
+                                db.SaveChanges();
+                                Console.WriteLine("New person was add.");
+                                return;
+                            }                            
+                            Console.WriteLine("Person already exsist in DB.");
+                            // ответ успешно\не успешно
                         }
                         else
                             Console.WriteLine("Без входящего параметра");
@@ -87,9 +113,40 @@ namespace MainProj
 
         }
 
-        private static void CreatedDB()
+        private static string [] ParseInputString(string[] args)
         {
-            using var db = new MainDBContext();
+            string[] temp = new string[5];
+            Person person = new Person();
+            temp[4] = args[3];
+            temp[3] = args[2];
+            string[] FIO = ParseInputParam(args[1], temp);
+            return temp;
         }
+
+        private static string[] ParseInputParam(string v, string[] temp)
+        {
+            int index = 0;
+            
+            List<char> list = new List<char>();
+            list.Add(v[0]);
+            for (int i = 1; i < v.Length; i++)
+            {
+                if (!char.IsUpper(v[i]))
+                    list.Add(v[i]);
+                else
+                {
+                    temp[index] = string.Join("", list);
+                    list.Clear();
+                    list.Add(v[i]);
+                    index++;
+                }
+            }
+            temp[index] = string.Join("", list);
+
+
+            return temp;
+        }
+
+        
     }
 }
