@@ -21,12 +21,27 @@
                 {
                     case "1":
                         Console.WriteLine($"Обработка события {action}");
+                        //Создание бд если еще не создана
                         break;
                     case "2":
                         Console.WriteLine($"Обработка события {action}");
+                        if (args.Length == 2)
+                        {
+                            Console.WriteLine("Входящий параметр есть: " + args[1]);
+                        }
+                        else
+                            Console.WriteLine("Без входящего параметра");
                         break;
                     case "3":
                         Console.WriteLine($"Обработка события {action}");
+                        //TODO определить шаблон фильтрации записей
+                        if (args.Length == 2)
+                        {
+                            Console.WriteLine("Входящий параметр фильтра: " + args[1]);
+                        }
+                        else
+                            Console.WriteLine("Номинальный фильтр: \"ФИО+др\"");
+                        Console.WriteLine("Выводятся данные согласно фильтру");
                         break;
                     case "4":
                         Console.WriteLine($"Обработка события {action}");
