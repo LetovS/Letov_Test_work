@@ -47,5 +47,9 @@ namespace MainProj.Models
             }
             throw new InvalidCastException();
         }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
