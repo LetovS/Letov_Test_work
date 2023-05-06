@@ -7,15 +7,16 @@ namespace MainProj.Data
     internal class MainDBContext : DbContext
     {
         private bool IsCreated { get; set; } = false;
-        public DbSet<Person> Persons { get; set; }
+        
+        public DbSet<Person>? Persons { get; set; } 
         public MainDBContext()
-        {
+        {            
             IsCreated = CheckIsCreatedDB();
             if (!IsCreated)
             {
                 Database.EnsureCreated();
                 //TODO записать в файл настроек тру
-                ChangeCreatedDBStatus(isCreated:true);
+                ChangeCreatedDBStatus(isCreated: true);
             }
         }
         /// <summary>
@@ -49,13 +50,18 @@ namespace MainProj.Data
 
         internal void EnsureDeleteDB()
         {
-            //удалить бд
-            Database.EnsureDeleted();
-            // изменить флаг
-            IsCreated = false;
-            // записать false в файл
-            using var sw = new StreamWriter("settings.txt");
-            sw.Write("false");
+            if (IsCreated)
+            {
+                //удалить бд
+                Database.EnsureDeleted();
+                // изменить флаг
+                IsCreated = false;
+                // записать false в файл
+                using var sw = new StreamWriter("settings.txt");
+                sw.Write("false");
+            }
+            else
+                throw new ArgumentException("Database wasn't creating.");
         }
     }
 }
