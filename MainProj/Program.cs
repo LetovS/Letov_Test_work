@@ -183,10 +183,10 @@ namespace MainProj
 
         private static int GetFull(DateTime bithday)
         {
-            var test = DateTime.Parse("30.10.2023");
-            var year = test.Year - bithday.Year;
-            if (test.Month - bithday.Month <= 0)
-                if (test.Day - bithday.Day < 0)
+            
+            var year = DateTime.Now.Year - bithday.Year;
+            if (DateTime.Now.Month - bithday.Month <= 0)
+                if (DateTime.Now.Day - bithday.Day < 0)
                     year--;           
             //TODO Доделать если нужно дать возраст с учетом времени
             return year;
