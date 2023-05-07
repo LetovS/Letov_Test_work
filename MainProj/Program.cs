@@ -79,28 +79,32 @@ namespace MainProj
                     case "3":
                         Console.WriteLine($"Обработка события {action}");
                         //TODO определить шаблон фильтрации записей
-                        if (args.Length == 2)
+                        if (MainDBContext.IsCreated())
                         {
-                            //TODO Реализовать соритровку по дате рождения, полу
-                            //TODO обдумать где выполнять сортировку (в БД\в приложение)
-                            Console.WriteLine("Входящий параметр фильтра: " + args[1]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Номинальный фильтр: \"ФИО+др\"");
-                            using var db = new MainDBContext();
-                            var dataOrdersByLFM_birthday = db.Persons!
-                                                            .OrderBy(x => x.LastName)
-                                                            .ThenBy(x => x.FirstName)
-                                                            .ThenBy(x => x.MiddleName)
-                                                            .ToList();
-                            Console.WriteLine("Выводятся данные согласно фильтру");
-                            foreach (var person in dataOrdersByLFM_birthday)
+                            if (args.Length == 2)
                             {
-                                Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
+                                //TODO Реализовать соритровку по дате рождения, полу
+                                //TODO обдумать где выполнять сортировку (в БД\в приложение)
+                                Console.WriteLine("Входящий параметр фильтра: " + args[1]);
                             }
-                        }                           
-                        
+                            else
+                            {
+                                Console.WriteLine("Номинальный фильтр: \"ФИО+др\"");
+                                using var db = new MainDBContext();
+                                var dataOrdersByLFM_birthday = db.Persons!
+                                                                .OrderBy(x => x.LastName)
+                                                                .ThenBy(x => x.FirstName)
+                                                                .ThenBy(x => x.MiddleName)
+                                                                .ToList();
+                                Console.WriteLine("Выводятся данные согласно фильтру");
+                                foreach (var person in dataOrdersByLFM_birthday)
+                                {
+                                    Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
+                                }
+                            }
+                        }                         
+                        else
+                            Console.WriteLine("Database wasn't create.");
                         break;
                     case "4":
                         Console.WriteLine($"Обработка события {action}");
