@@ -1,6 +1,7 @@
 ﻿using MainProj.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Text;
 
 namespace MainProj.Data
 {
@@ -62,5 +63,7 @@ namespace MainProj.Data
             // если true не создаем
             return false;
         }
+
+        
     }
 }
