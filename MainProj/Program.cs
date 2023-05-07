@@ -7,7 +7,8 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-            //string[] args = { "2", "LetovSergeyMichailovich", "30.10.1987", "Male" };
+            
+            //string[] args = { "3" };
             
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
@@ -82,8 +83,22 @@ namespace MainProj
                             Console.WriteLine("Входящий параметр фильтра: " + args[1]);
                         }
                         else
+                        {
                             Console.WriteLine("Номинальный фильтр: \"ФИО+др\"");
-                        Console.WriteLine("Выводятся данные согласно фильтру");
+                            using var db = new MainDBContext();
+                            var dataOrdersByLFM_birthday = db.Persons!
+                                                            .OrderBy(x => x.LastName)
+                                                            .ThenBy(x => x.FirstName)
+                                                            .ThenBy(x => x.MiddleName)
+                                                            .ToList();
+                            Console.WriteLine("Выводятся данные согласно фильтру");
+                            foreach (var person in dataOrdersByLFM_birthday)
+                            {
+                                Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
+                            }
+                        }
+                            
+                        
                         break;
                     case "4":
                         Console.WriteLine($"Обработка события {action}");
@@ -117,6 +132,17 @@ namespace MainProj
             else
                 Console.WriteLine("No action set");
 
+        }
+
+        private static int GetFull(DateTime bithday)
+        {
+            var test = DateTime.Parse("30.10.2023");
+            var year = test.Year - bithday.Year;
+            if (test.Month - bithday.Month <= 0)
+                if (test.Day - bithday.Day < 0)
+                    year--;           
+            //TODO Доделать если нужно дать возраст с учетом времени
+            return year;
         }
 
         private static string [] ParseInputString(string[] args)
