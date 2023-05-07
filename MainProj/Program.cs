@@ -1,5 +1,6 @@
 ﻿using MainProj.Data;
 using MainProj.Models;
+using System.Diagnostics;
 
 namespace MainProj
 {
@@ -7,8 +8,8 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-            
-            //string[] args = { "3" };
+
+            //string[] args = { "4", "100000"};
             
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
@@ -80,6 +81,8 @@ namespace MainProj
                         //TODO определить шаблон фильтрации записей
                         if (args.Length == 2)
                         {
+                            //TODO Реализовать соритровку по дате рождения, полу
+                            //TODO обдумать где выполнять сортировку (в БД\в приложение)
                             Console.WriteLine("Входящий параметр фильтра: " + args[1]);
                         }
                         else
@@ -96,12 +99,52 @@ namespace MainProj
                             {
                                 Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
                             }
-                        }
-                            
+                        }                           
                         
                         break;
                     case "4":
                         Console.WriteLine($"Обработка события {action}");
+                        if (MainDBContext.IsCreated())
+                        {
+                            
+                            if(!(args.Length == 2 && int.TryParse(args[1], out int count)))
+                            {
+                                count = 1000000;
+                            }                      
+                            using var db = new MainDBContext();
+                            var sw = Stopwatch.StartNew();
+                            List<Person> persons = new List<Person>();
+                            Person person;
+                            int curent = 0; 
+                            while(curent < count)
+                            {
+                                person = new Person
+                                {
+                                    LastName = "",
+                                    FirstName = "",
+                                    MiddleName = "",
+                                    Bithday = DateTime.Now,
+                                    Gender = ""
+                                };
+                                persons.Add(person);
+                                person = null!;
+                                curent++;
+                                //TODO Проверка на дубликат при добавлении в список выкл
+                                //if (!persons.Contains(person))
+                                //{
+                                //    persons.Add(person);
+                                //    person = null!;
+                                //    curent++;
+                                //}
+
+                            }
+                            db.Persons!.AddRange(persons);
+                            db.SaveChanges();
+                            Console.WriteLine($"Выполнено за {sw.Elapsed.TotalSeconds}");
+                        }
+                        else
+                            Console.WriteLine("Database wasn't create.");
+
                         break;
                     case "5":
                         Console.WriteLine($"Обработка события {action}");
