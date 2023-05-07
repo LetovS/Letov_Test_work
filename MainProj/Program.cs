@@ -38,31 +38,37 @@ namespace MainProj
                         Console.WriteLine($"Обработка события {action}");
                         if (args.Length > 1)
                         {
-                            // распарсить входящую строку
-                            string [] values = ParseInputString(args);
-                            // создать персону
-                            DateTime date = DateTime.Parse(values[3]);
-                            var person = new Person()
+                            if (MainDBContext.IsCreated())
                             {
-                                LastName = values[0],
-                                FirstName = values[1],
-                                MiddleName = values[2],
-                                Bithday = date, 
-                                Gender = values[4]
-                            };
-                            // проверить есть ли в БД
-                            using var db = new MainDBContext();
+                                // распарсить входящую строку
+                                string[] values = ParseInputString(args);
+                                // создать персону
+                                DateTime date = DateTime.Parse(values[3]);
+                                var person = new Person()
+                                {
+                                    LastName = values[0],
+                                    FirstName = values[1],
+                                    MiddleName = values[2],
+                                    Bithday = date,
+                                    Gender = values[4]
+                                };
+                                // проверить есть ли в БД
+                                using var db = new MainDBContext();
 
-                            var collections = db.Persons!.ToList();
-                            
-                            if (!collections.Contains(person))
-                            {
-                                db.Persons!.Add(person);
-                                db.SaveChanges();
-                                Console.WriteLine("New person was add.");
-                                return;
-                            }                            
-                            Console.WriteLine("Person already exsist in DB.");
+                                var collections = db.Persons!.ToList();
+
+                                if (!collections.Contains(person))
+                                {
+                                    db.Persons!.Add(person);
+                                    db.SaveChanges();
+                                    Console.WriteLine("New person was add.");
+                                    return;
+                                }
+                                else
+                                    Console.WriteLine("Person already exsist in DB.");
+                            }
+                            else
+                                Console.WriteLine("Database wasn't create.");
                             // ответ успешно\не успешно
                         }
                         else
