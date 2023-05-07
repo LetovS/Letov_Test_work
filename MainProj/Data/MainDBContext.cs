@@ -14,8 +14,7 @@ namespace MainProj.Data
             isCreated = IsCreated();
             if (!isCreated)
             {
-                Database.EnsureCreated();
-                //TODO записать в файл настроек тру
+                Database.EnsureCreated();                
                 ChangeCreatedDBStatus(isCreated: true);
             }
         }
