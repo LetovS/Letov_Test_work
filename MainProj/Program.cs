@@ -1,6 +1,7 @@
 ﻿using MainProj.Data;
 using MainProj.Models;
 using System.Diagnostics;
+using Faker;
 
 namespace MainProj
 {
@@ -8,7 +9,6 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-
             //string[] args = { "4", "100000"};
             
             // Парс входящих аргументов 
@@ -109,8 +109,7 @@ namespace MainProj
                     case "4":
                         Console.WriteLine($"Обработка события {action}");
                         if (MainDBContext.IsCreated())
-                        {
-                            
+                        {                            
                             if(!(args.Length == 2 && int.TryParse(args[1], out int count)))
                             {
                                 count = 1000000;
@@ -122,13 +121,28 @@ namespace MainProj
                             int curent = 0; 
                             while(curent < count)
                             {
+                                var prefix = Faker.Name.Prefix();
+                                switch (prefix)
+                                {
+                                    case "Mr.":
+                                        prefix = "Male";
+                                        break;
+                                    case "Mrs.":
+                                    case "Miss":
+                                    case "Ms.":
+                                        prefix = "Female";
+                                        break;
+                                    default:
+                                        prefix = "Unknow";
+                                        break;
+                                }
                                 person = new Person
                                 {
-                                    LastName = "",
-                                    FirstName = "",
-                                    MiddleName = "",
+                                    LastName = Name.Last(),
+                                    FirstName = Name.First(),
+                                    MiddleName = Name.Middle(),
                                     Bithday = DateTime.Now,
-                                    Gender = ""
+                                    Gender = prefix
                                 };
                                 persons.Add(person);
                                 person = null!;
