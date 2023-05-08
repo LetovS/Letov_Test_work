@@ -2,6 +2,7 @@
 using MainProj.Models;
 using System.Diagnostics;
 using Faker;
+using System.Reflection;
 
 namespace MainProj
 {
@@ -9,6 +10,8 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
+            
+            
             //string[] args = { "4", "100000"};
             
             // Парс входящих аргументов 
@@ -119,30 +122,17 @@ namespace MainProj
                             List<Person> persons = new List<Person>();
                             Person person;
                             int curent = 0; 
+                            Random rnd = new Random();
+
                             while(curent < count)
                             {
-                                var prefix = Faker.Name.Prefix();
-                                switch (prefix)
-                                {
-                                    case "Mr.":
-                                        prefix = "Male";
-                                        break;
-                                    case "Mrs.":
-                                    case "Miss":
-                                    case "Ms.":
-                                        prefix = "Female";
-                                        break;
-                                    default:
-                                        prefix = "Unknow";
-                                        break;
-                                }
                                 person = new Person
                                 {
                                     LastName = Name.Last(),
                                     FirstName = Name.First(),
                                     MiddleName = Name.Middle(),
-                                    Bithday = DateTime.Now,
-                                    Gender = prefix
+                                    Bithday = GetDateBirthday(rnd.Next(18,30), rnd.Next(10), rnd.Next(15)),
+                                    Gender = GetRndGender()
                                 };
                                 persons.Add(person);
                                 person = null!;
@@ -194,6 +184,29 @@ namespace MainProj
                 Console.WriteLine("No action set");
 
         }
+
+        private static string GetRndGender()
+        {
+            var rnd = new Random();
+            var res = rnd.Next(2);
+            if (res == 1)
+            {
+                return "Male";
+
+            }
+            return "Female";
+        }
+
+        private static DateTime GetDateBirthday(int year, int months, int days)
+        {
+            var t = DateTime.Now;
+            var temp = t.AddYears(-year);
+            temp = temp.AddMonths(-months);
+            temp = temp.AddDays(-days);
+            return temp;
+        }
+
+        
 
         private static int GetFull(DateTime bithday)
         {
