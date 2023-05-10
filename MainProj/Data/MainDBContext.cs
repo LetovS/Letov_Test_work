@@ -25,8 +25,11 @@ namespace MainProj.Data
             if (isCreated)
             {
                 isCreated = true;
-                string path = "settings.txt";
-                using var sw = new StreamWriter(path);
+                var ttt = Environment.CurrentDirectory.Split('\\');
+                var k = ttt.Take(ttt.Length - 3).ToArray();
+                string path = "\\settings.txt";
+                var res = string.Join("\\", k) + path;
+                using var sw = new StreamWriter(res);
                 sw.Write("true");
             }
         }
@@ -36,7 +39,7 @@ namespace MainProj.Data
             optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LetovTestDB;");
         }
 
-        internal bool EnsureDeleteDB()
+        internal void EnsureDeleteDB()
         {
             if (isCreated)
             {
@@ -45,9 +48,12 @@ namespace MainProj.Data
                 // изменить флаг
                 isCreated = false;
                 // записать false в файл
-                using var sw = new StreamWriter("settings.txt", false);
+                var ttt = Environment.CurrentDirectory.Split('\\');
+                var k = ttt.Take(ttt.Length - 3).ToArray();
+                string path = "\\settings.txt";
+                var res = string.Join("\\", k) + path;
+                using var sw = new StreamWriter(res, false);
                 sw.Write("false");
-                return true;
             }
             else
                 throw new ArgumentException("Database wasn't creating.");
@@ -55,14 +61,15 @@ namespace MainProj.Data
 
         internal static bool IsCreated()
         {
-            string path = "settings.txt";
+            var ttt = Environment.CurrentDirectory.Split('\\');
+            var k = ttt.Take(ttt.Length - 3).ToArray();
+            string path = "\\settings.txt";
+            var res = string.Join("\\", k) + path;
             // прочесть настройки, если нет или false создаем
-            if (File.Exists(path) && File.ReadAllText(path) == "true")
+            if (File.Exists(res) && File.ReadAllText(res) == "true")
                 return true;            
             // если true не создаем
             return false;
         }
-
-        
     }
 }

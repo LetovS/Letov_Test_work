@@ -120,6 +120,8 @@ namespace MainProj
                             using var db = new MainDBContext();
                             var sw = Stopwatch.StartNew();
                             List<Person> persons = new List<Person>();
+                            var rnd = new Random();
+
                             Person person;
                             int curent = 0; 
                             Random rnd = new Random();
@@ -156,6 +158,17 @@ namespace MainProj
                         break;
                     case "5":
                         Console.WriteLine($"Обработка события {action}");
+                        if (MainDBContext.IsCreated())
+                        {
+                            using var db = new MainDBContext();
+                            var sw = Stopwatch.StartNew();
+                            
+                            var res = db.Persons!.Where(x => x.Gender == "Male" && x.LastName.StartsWith("F") && x.FirstName.StartsWith("F") && x.MiddleName.StartsWith("F")).ToArray();
+                            Console.WriteLine("Время выборки: " + sw.Elapsed.TotalSeconds);
+                            Console.WriteLine("Число найденных записей" + " " + res.Length);
+                        }
+                        else
+                            Console.WriteLine("Database wasn't create.");
                         break;
                     case "6":
                         Console.WriteLine($"Обработка события {action}");
@@ -210,7 +223,6 @@ namespace MainProj
 
         private static int GetFull(DateTime bithday)
         {
-            
             var year = DateTime.Now.Year - bithday.Year;
             if (DateTime.Now.Month - bithday.Month <= 0)
                 if (DateTime.Now.Day - bithday.Day < 0)
