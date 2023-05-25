@@ -119,7 +119,7 @@ namespace MainProj
                             }                      
                             using var db = new MainDBContext();
                             var sw = Stopwatch.StartNew();
-                            List<Person> persons = new List<Person>();
+                            List<Person> persons = new();
                             var rnd = new Random();
 
                             Person person;
@@ -155,9 +155,9 @@ namespace MainProj
                             {
                                 temp = new Person
                                 {
-                                    LastName = "F" + Guid.NewGuid().ToString().Substring(5),
-                                    FirstName = "F" + Guid.NewGuid().ToString().Substring(5),
-                                    MiddleName = "F" + Guid.NewGuid().ToString().Substring(5),
+                                    LastName = "F" + Guid.NewGuid().ToString()[0..5],
+                                    FirstName = "F" + Guid.NewGuid().ToString()[0..5],
+                                    MiddleName = "F" + Guid.NewGuid().ToString()[0..5],
                                     Gender = "Male",
                                     Bithday = DateTime.Parse(DateTime.Now.ToShortDateString()),
                                 };
@@ -249,37 +249,9 @@ namespace MainProj
         private static string [] ParseInputString(string[] args)
         {
             string[] temp = new string[5];
-            Person person = new Person();
             temp[4] = args[3];
             temp[3] = args[2];
-            string[] FIO = ParseInputParam(args[1], temp);
             return temp;
         }
-
-        private static string[] ParseInputParam(string v, string[] temp)
-        {
-            int index = 0;
-            
-            List<char> list = new List<char>();
-            list.Add(v[0]);
-            for (int i = 1; i < v.Length; i++)
-            {
-                if (!char.IsUpper(v[i]))
-                    list.Add(v[i]);
-                else
-                {
-                    temp[index] = string.Join("", list);
-                    list.Clear();
-                    list.Add(v[i]);
-                    index++;
-                }
-            }
-            temp[index] = string.Join("", list);
-
-
-            return temp;
-        }
-
-        
     }
 }
