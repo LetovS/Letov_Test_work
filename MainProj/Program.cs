@@ -10,10 +10,10 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-            
+
             
             //string[] args = { "4", "100000"};
-            
+
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
              * 1 - Создание (инициализация) таблицы\базы данных
@@ -148,6 +148,22 @@ namespace MainProj
 
                             }
                             db.Persons!.AddRange(persons);
+                            using var db1 = new MainDBContext();
+                            List<Person> users = new();
+                            Person temp;
+                            for (int i = 0; i < 100000; i++)
+                            {
+                                temp = new Person
+                                {
+                                    LastName = "F" + Guid.NewGuid().ToString().Substring(5),
+                                    FirstName = "F" + Guid.NewGuid().ToString().Substring(5),
+                                    MiddleName = "F" + Guid.NewGuid().ToString().Substring(5),
+                                    Gender = "Male",
+                                    Bithday = DateTime.Parse(DateTime.Now.ToShortDateString()),
+                                };
+                                users.Add(temp);
+                            }
+                            db.AddRange(users);
                             db.SaveChanges();
                             Console.WriteLine($"Выполнено за {sw.Elapsed.TotalSeconds}");
                         }
