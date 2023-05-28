@@ -3,6 +3,7 @@ using MainProj.Models;
 using System.Diagnostics;
 using Faker;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainProj
 {
@@ -199,7 +200,12 @@ namespace MainProj
                          * */
                         if (MainDBContext.IsCreated())
                         {
-
+                            using var db = new MainDBContext();
+                            //проверить существует ли индекс
+                            //реализовать процедуру возвращающая 1 есть, 0 нет
+                            // если есть то ничего не делаем, иначе создаем идекс/накатываем миграцию
+                            db.Database.Migrate();
+                            Console.WriteLine("Успешно");
                         }
                         else
                             Console.WriteLine("Database wasn't create.");

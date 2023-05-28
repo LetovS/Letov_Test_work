@@ -49,8 +49,8 @@ namespace MainProj.Models
             }
             throw new InvalidCastException();
         }
-        public string? Description { get; set; }
-        public string? Description2 { get; set; }
+        //public string? Description { get; set; }
+       // public string? Description2 { get; set; }
         public override int GetHashCode()
         {
             return base.GetHashCode();

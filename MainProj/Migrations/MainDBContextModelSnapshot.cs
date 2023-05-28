@@ -36,9 +36,6 @@ namespace MainProj.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description2")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(25)
@@ -63,7 +60,7 @@ namespace MainProj.Migrations
 
                     b.HasIndex(new[] { "Gender", "LastName", "FirstName", "MiddleName" }, "ix_test");
 
-                    b.ToTable("Persons");
+                    b.ToTable("Persons", (string)null);
                 });
 #pragma warning restore 612, 618
         }
