@@ -16,17 +16,17 @@ namespace MainProj.Models
         /// <summary>
         /// Имя.
         /// </summary>
-        [MaxLength(25)]
+        //[MaxLength(25)]
         public string FirstName { get; set; } = "None";
         /// <summary>
         /// Отчество.
         /// </summary>
-        [MaxLength(25)]
+       // [MaxLength(25)]
         public string MiddleName { get; set; } = "None";
         /// <summary>
         /// Фамилия.
         /// </summary>
-        [MaxLength(25)]
+        //[MaxLength(25)]
         public string LastName { get; set; } = "None";
         /// <summary>
         /// Дата рождения (только дата).
@@ -35,7 +35,7 @@ namespace MainProj.Models
         /// <summary>
         /// Пол.
         /// </summary>
-        [MaxLength(25)]
+        //[MaxLength(25)]
         public string Gender { get; set; } = "None";
 
         public override bool Equals(object? obj)
