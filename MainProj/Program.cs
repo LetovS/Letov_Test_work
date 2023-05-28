@@ -10,10 +10,10 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-            
+
             
             //string[] args = { "4", "100000"};
-            
+
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
              * 1 - Создание (инициализация) таблицы\базы данных  реализовать создание таблицы в ручную с указанием макс длины в виде атрибутов в моделе
@@ -119,7 +119,7 @@ namespace MainProj
                             }                      
                             using var db = new MainDBContext();
                             var sw = Stopwatch.StartNew();
-                            List<Person> persons = new List<Person>();
+                            List<Person> persons = new();
                             var rnd = new Random();
 
                             Person person;
@@ -148,6 +148,22 @@ namespace MainProj
 
                             }
                             db.Persons!.AddRange(persons);
+                            using var db1 = new MainDBContext();
+                            List<Person> users = new();
+                            Person temp;
+                            for (int i = 0; i < 100000; i++)
+                            {
+                                temp = new Person
+                                {
+                                    LastName = "F" + Guid.NewGuid().ToString()[0..5],
+                                    FirstName = "F" + Guid.NewGuid().ToString()[0..5],
+                                    MiddleName = "F" + Guid.NewGuid().ToString()[0..5],
+                                    Gender = "Male",
+                                    Bithday = DateTime.Parse(DateTime.Now.ToShortDateString()),
+                                };
+                                users.Add(temp);
+                            }
+                            db.AddRange(users);
                             db.SaveChanges();
                             Console.WriteLine($"Выполнено за {sw.Elapsed.TotalSeconds}");
                         }
@@ -234,37 +250,9 @@ namespace MainProj
         private static string [] ParseInputString(string[] args)
         {
             string[] temp = new string[5];
-            Person person = new Person();
             temp[4] = args[3];
             temp[3] = args[2];
-            string[] FIO = ParseInputParam(args[1], temp);
             return temp;
         }
-
-        private static string[] ParseInputParam(string v, string[] temp)
-        {
-            int index = 0;
-            
-            List<char> list = new List<char>();
-            list.Add(v[0]);
-            for (int i = 1; i < v.Length; i++)
-            {
-                if (!char.IsUpper(v[i]))
-                    list.Add(v[i]);
-                else
-                {
-                    temp[index] = string.Join("", list);
-                    list.Clear();
-                    list.Add(v[i]);
-                    index++;
-                }
-            }
-            temp[index] = string.Join("", list);
-
-
-            return temp;
-        }
-
-        
     }
 }
