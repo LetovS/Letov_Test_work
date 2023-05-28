@@ -4,14 +4,16 @@ using System.Diagnostics;
 using Faker;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using System;
+using Microsoft.Data.SqlClient;
 
 namespace MainProj
 {
     internal class Program
     {
-        static void Main(string[] args )
+        static void Main(string[] args1 )
         {
-            //string[] args = { "4", "100000"};
+            string[] args = { "6"};
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
              * 1 - Создание (инициализация) таблицы\базы данных  реализовать создание таблицы в ручную с указанием макс длины в виде атрибутов в моделе
@@ -204,7 +206,26 @@ namespace MainProj
                             //проверить существует ли индекс
                             //реализовать процедуру возвращающая 1 есть, 0 нет
                             // если есть то ничего не делаем, иначе создаем идекс/накатываем миграцию
-                            db.Database.Migrate();
+
+                            SqlParameter param = new()
+                            {
+                                ParameterName = "@res",
+                                SqlDbType = System.Data.SqlDbType.Int,
+                                Direction = System.Data.ParameterDirection.Output
+                            };
+                            db.Database.ExecuteSqlRaw("IsCheck @res OUT", param);
+                            if (param.Value is Int32 res)
+                            {
+                                if (res == 1)
+                                {
+                                    Console.WriteLine("Уже есть.");
+                                }
+                                else
+                                {
+                                    db.Database.Migrate();
+                                    Console.WriteLine("No");
+                                }
+                            }
                             Console.WriteLine("Успешно");
                         }
                         else
@@ -217,11 +238,12 @@ namespace MainProj
                             try
                             {
                                 new MainDBContext().EnsureDeleteDB();
-                                Console.WriteLine("Успешно.");
+                                Console.WriteLine("Уже есть.");
                             }
                             catch (Exception e)
                             {
                                 Console.WriteLine(e.Message);
+                                Console.WriteLine("Успешно.");
                             }
                         }
                         break;
