@@ -178,7 +178,14 @@ namespace MainProj
                             using var db = new MainDBContext();
                             var sw = Stopwatch.StartNew();
                             
-                            var res = db.Persons!.Where(x => x.Gender == "Male" && x.LastName.StartsWith("F") && x.FirstName.StartsWith("F") && x.MiddleName.StartsWith("F")).ToArray();
+                            var res = db
+                                        .Persons!
+                                        .Where(x =>
+                                                    x.Gender == "Male" &&
+                                                    x.LastName.StartsWith("F")
+                                                    && x.FirstName.StartsWith("F")
+                                                    && x.MiddleName.StartsWith("F"))
+                                        .ToArray();
                             Console.WriteLine("Время выборки: " + sw.Elapsed.TotalSeconds);
                             Console.WriteLine("Число найденных записей" + " " + res.Length);
                         }
@@ -188,6 +195,17 @@ namespace MainProj
                     case "6":
                         Console.WriteLine($"Обработка события {action}");
                         // создание индекса для ускорения поиска
+                        /*
+                         * Надо отправить запрос на создание индекса
+                         * 
+                         * 
+                         * */
+                        if (MainDBContext.IsCreated())
+                        {
+
+                        }
+                        else
+                            Console.WriteLine("Database wasn't create.");
                         break;
                     case "7":
                         Console.WriteLine($"Удаление БД и {action}");
