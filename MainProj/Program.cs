@@ -11,10 +11,10 @@ namespace MainProj
 {
     internal class Program
     {
-        static void Main(string[] args1 )
+        static void Main(string[] args )
         {
             //string[] args = { "6"};
-            string[] args = { "2", "LetovSergeyMichailovich", "30.10.1987", "Male" };
+            //string[] args = { "2", "LetovSergeyMichailovich", "30.10.1987", "Male" };
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
              * 1 - Создание (инициализация) таблицы\базы данных  реализовать создание таблицы в ручную с указанием макс длины в виде атрибутов в моделе
