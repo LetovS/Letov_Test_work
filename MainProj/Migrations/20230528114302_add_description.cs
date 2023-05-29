@@ -44,17 +44,13 @@ namespace MainProj.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
 
-            migrationBuilder.CreateIndex(
-                name: "ix_test",
-                table: "Persons",
-                columns: new[] { "Gender", "LastName", "FirstName", "MiddleName" });
+           
+            
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "ix_test",
-                table: "Persons");
+            
 
             migrationBuilder.AlterColumn<string>(
                 name: "MiddleName",
@@ -91,6 +87,8 @@ namespace MainProj.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(25)",
                 oldMaxLength: 25);
+
+            
         }
     }
 }

@@ -149,6 +149,7 @@ namespace MainProj
 
                             }
                             db.Persons!.AddRange(persons);
+                            db.SaveChanges();
                             using var db1 = new MainDBContext();
                             List<Person> users = new();
                             Person temp;
@@ -165,6 +166,7 @@ namespace MainProj
                                 users.Add(temp);
                             }
                             db.AddRange(users);
+                            Console.WriteLine("Сохранение в БД");
                             db.SaveChanges();
                             Console.WriteLine($"Выполнено за {sw.Elapsed.TotalSeconds}");
                         }
@@ -214,16 +216,42 @@ namespace MainProj
                                 SqlDbType = System.Data.SqlDbType.Int,
                                 Direction = System.Data.ParameterDirection.Output
                             };
+                            //проверка наличия процедуры
+                            SqlParameter param2 = new SqlParameter()
+                            {
+                                ParameterName = "IsCheck"
+                            };
+
+                            try
+                            {
+                                db.Database.ExecuteSqlRaw(@"create procedure IsCheck
+                                    @res int output
+                                    as
+                                    begin
+                                    declare @k as int
+                                    select @k =Count(*) from sys.indexes as si
+                                    where si.name = 'ix_test'
+                                    if(@k = 1)
+                                    set @res = @k
+                                    else
+                                    set @res = @k
+                                    end");
+                            }
+                            catch (Exception)
+                            {
+
+                            }
                             db.Database.ExecuteSqlRaw("IsCheck @res OUT", param);
                             if (param.Value is Int32 res)
                             {
                                 if (res == 1)
                                 {
-                                    Console.WriteLine("Уже есть.");
+                                    Console.WriteLine("Добавлен индекс");
                                 }
                                 else
                                 {
-                                    db.Database.Migrate();
+                                    db.Database.ExecuteSqlRaw(@"CREATE NONCLUSTERED INDEX ix_test on dbo.Persons(Gender, LastName, FirstName, MiddleName)");
+                
                                     Console.WriteLine("No");
                                 }
                             }
@@ -288,10 +316,10 @@ namespace MainProj
         private static string[] ParseInputString(string[] args)
         {
             string[] temp = new string[5];
-            Person person = new Person();
+            //Person person = new Person();
             temp[4] = args[3];
             temp[3] = args[2];
-            string[] FIO = ParseInputParam(args[1], temp);
+            _ = ParseInputParam(args[1], temp);
             return temp;
         }
 
@@ -299,8 +327,10 @@ namespace MainProj
         {
             int index = 0;
 
-            List<char> list = new List<char>();
-            list.Add(v[0]);
+            List<char> list = new()
+            {
+                v[0]
+            };
             for (int i = 1; i < v.Length; i++)
             {
                 if (!char.IsUpper(v[i]))
