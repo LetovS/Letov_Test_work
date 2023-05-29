@@ -22,16 +22,13 @@ namespace MainProj.Data
 
         private void ChangeCreatedDBStatus(bool isCreated)
         {
-            if (isCreated)
-            {
-                isCreated = true;
-                var ttt = Environment.CurrentDirectory.Split('\\');
-                var k = ttt.Take(ttt.Length - 3).ToArray();
-                string path = "\\settings.txt";
-                var res = string.Join("\\", k) + path;
-                using var sw = new StreamWriter(res);
-                sw.Write("true");
-            }
+            isCreated = true;
+            var ttt = Environment.CurrentDirectory.Split('\\');
+            var k = ttt.Take(ttt.Length - 3).ToArray();
+            string path = "\\settings.txt";
+            var res = string.Join("\\", k) + path;
+            using var sw = new StreamWriter(res);
+            sw.Write("true");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
