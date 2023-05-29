@@ -262,10 +262,7 @@ namespace MainProj
             var rnd = new Random();
             var res = rnd.Next(2);
             if (res == 1)
-            {
                 return "Male";
-
-            }
             return "Female";
         }
 
@@ -277,9 +274,6 @@ namespace MainProj
             temp = temp.AddDays(-days);
             return temp;
         }
-
-        
-
         private static int GetFull(DateTime bithday)
         {
             var year = DateTime.Now.Year - bithday.Year;
