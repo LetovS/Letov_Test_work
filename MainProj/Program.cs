@@ -1,4 +1,5 @@
-﻿using MainProj.Data;
+﻿#define Debug
+using MainProj.Data;
 using MainProj.Models;
 using System.Diagnostics;
 using Faker;
@@ -13,7 +14,8 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-            //string[] args = { "6"};
+
+            //string[] args = { "3"};
             //string[] args = { "2", "LetovSergeyMichailovich", "30.10.1987", "Male" };
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
@@ -32,7 +34,7 @@ namespace MainProj
                 switch (action)
                 {
                     case "1":
-                        using (var db = new MainDBContext())
+                        using (var db = new MainDBContext(true))
                         {
                             Console.WriteLine("Database was create.");
                         }
@@ -65,80 +67,79 @@ namespace MainProj
                             Console.WriteLine("Без входящего параметра");
                         break;
                     case "3":
-                        Console.WriteLine($"Обработка события {action}");
+                        Console.WriteLine($"Вывод уникальных записей");
                         //TODO определить шаблон фильтрации записей
-                        if (args.Length == 2)
+                        using (var db = new MainDBContext())
                         {
-                            //TODO Реализовать соритровку по дате рождения, полу
-                            //TODO обдумать где выполнять сортировку (в БД\в приложение)
-                            Console.WriteLine("Входящий параметр фильтра: " + args[1]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Номинальный фильтр: \"ФИО+др\"");
-                            using var db = new MainDBContext();
-                            var dataOrdersByLFM_birthday = db.Persons!
-                                                            .Distinct()
-                                                            .OrderBy(x => x.LastName)
-                                                            .ThenBy(x => x.FirstName)
-                                                            .ThenBy(x => x.MiddleName)
-                                                            .ToList();
-                            Console.WriteLine("Выводятся данные согласно фильтру");
-                            foreach (var person in dataOrdersByLFM_birthday)
+                            var persons = db.Persons!.ToList();
+                            if (persons.Count > 0)
                             {
-                                Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
+                                var dataOrdersByLFM_birthday = db.Persons!
+                                                        .OrderBy(x => x.LastName)
+                                                        .ThenBy(x => x.FirstName)
+                                                        .ThenBy(x => x.MiddleName)
+                                                        .ToList()
+                                                        .Distinct(new PersonComparer());
+                                foreach (var person in dataOrdersByLFM_birthday)
+                                {
+                                    Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
+                                }
+                                return;
                             }
-                        }
+                            Console.WriteLine("Пользователей нет.");
+                        }                        
                         break;
                     case "4":
-                        Console.WriteLine($"Обработка события {action}");                                                   
+                        Console.WriteLine($"Генерация тестовых данных в базе данных.");                                                   
                         if(!(args.Length == 2 && int.TryParse(args[1], out int count)))
                         {
                             count = 1000000;
                         }
                         using (MainDBContext db = new ())
                         {
-                            var sw = Stopwatch.StartNew();
-                            List<Person> persons = new();
-                            var rnd = new Random();
-                            //TODO обдумать над использованием 
-                            Person person;
-                            int curent = 0;
-                            while (curent < count)
+                            if (db.Persons != null)
                             {
-                                person = new Person
+                                var sw = Stopwatch.StartNew();
+                                List<Person> persons = new();
+                                var rnd = new Random();
+                                //TODO обдумать над использованием 
+                                Person person;
+                                int curent = 0;
+                                while (curent < count)
                                 {
-                                    LastName = Name.Last(),
-                                    FirstName = Name.First(),
-                                    MiddleName = Name.Middle(),
-                                    Bithday = GetDateBirthday(rnd.Next(18, 30), rnd.Next(10), rnd.Next(15)),
-                                    Gender = GetRndGender()
-                                };
-                                persons.Add(person);
+                                    person = new Person
+                                    {
+                                        LastName = Name.Last(),
+                                        FirstName = Name.First(),
+                                        MiddleName = Name.Middle(),
+                                        Bithday = GetDateBirthday(rnd.Next(18, 30), rnd.Next(10), rnd.Next(15)),
+                                        Gender = GetRndGender()
+                                    };
+                                    persons.Add(person);
+                                    person = null!;
+                                    curent++;
+                                }
+                                db.Persons!.AddRange(persons);
+                                db.SaveChanges();
+                                persons?.Clear();
                                 person = null!;
-                                curent++;
-                            }
-                            db.Persons!.AddRange(persons);
-                            db.SaveChanges();
-                            persons.Clear();
-                            
-                            person = null!;
-                            for (int i = 0; i < 100000; i++)
-                            {
-                                person = new Person
+                                for (int i = 0; i < 1000; i++)
                                 {
-                                    LastName = "F" + Guid.NewGuid().ToString()[0..5],
-                                    FirstName = "F" + Guid.NewGuid().ToString()[0..5],
-                                    MiddleName = "F" + Guid.NewGuid().ToString()[0..5],
-                                    Gender = "Male",
-                                    Bithday = DateTime.Parse(DateTime.Now.ToShortDateString()),
-                                };
-                                persons.Add(person);
+                                    person = new Person
+                                    {
+                                        LastName = "F" + Guid.NewGuid().ToString()[0..5],
+                                        FirstName = "F" + Guid.NewGuid().ToString()[0..5],
+                                        MiddleName = "F" + Guid.NewGuid().ToString()[0..5],
+                                        Gender = "Male",
+                                        Bithday = DateTime.Parse(DateTime.Now.ToShortDateString()),
+                                    };
+                                    persons!.Add(person);
+                                }
+                                db.AddRange(persons!);
+                                Console.WriteLine("Сохранение в БД");
+                                db.SaveChanges();
+                                Console.WriteLine($"Выполнено за {sw.Elapsed.TotalSeconds}");
                             }
-                            db.AddRange(persons);
-                            Console.WriteLine("Сохранение в БД");
-                            db.SaveChanges();
-                            Console.WriteLine($"Выполнено за {sw.Elapsed.TotalSeconds}");
                         }
                         break;
                     case "5":
@@ -163,7 +164,7 @@ namespace MainProj
                         using (var db = new MainDBContext())
                         {
                             //проверка существования процедуры
-                            SqlParameter param2 = new SqlParameter()
+                            SqlParameter param2 = new ()
                             {
                                 ParameterName = "IsCheck"
                             };
@@ -218,17 +219,9 @@ namespace MainProj
                         break;
                     case "7":
                         Console.WriteLine($"Удаление БД и {action}");
-                        if (MainDBContext.IsCreated())
-                        {                            
-                            try
-                            {
-                                new MainDBContext().EnsureDeleteDB();
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                                Console.WriteLine("Успешно.");
-                            }
+                        using (var db = new MainDBContext())
+                        {
+                            db.Database.EnsureDeleted();
                         }
                         break;
                     default:
