@@ -1,12 +1,11 @@
-﻿#define Debug
-using MainProj.Data;
+﻿using MainProj.Data;
 using MainProj.Models;
 using System.Diagnostics;
 using Faker;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.Data.SqlClient;
+using MainProj.Infrastructure.Compapeps;
 
 namespace MainProj
 {
@@ -14,9 +13,6 @@ namespace MainProj
     {
         static void Main(string[] args )
         {
-
-            //string[] args = { "3"};
-            //string[] args = { "2", "LetovSergeyMichailovich", "30.10.1987", "Male" };
             // Парс входящих аргументов 
             /* Диапазон ожидаемых параметров
              * 1 - Создание (инициализация) таблицы\базы данных  реализовать создание таблицы в ручную с указанием макс длины в виде атрибутов в моделе
@@ -40,14 +36,13 @@ namespace MainProj
                         }
                         break;
                     case "2":
-                        Console.WriteLine($"Обработка события {action}");
                         if (args.Length > 1)
                         {
                             //TODO где то нужно проверять строку на валидность
                             // распарсить входящую строку
-                            string[] values = ParseInputString(args);
-                            // создать персону
+                            string[] values = ParseInputString(args);                           
                             DateTime date = DateTime.Parse(values[3]);
+                            // создать персону
                             var person = new Person()
                             {
                                 LastName = values[0],
@@ -61,14 +56,13 @@ namespace MainProj
                             db.Persons!.Add(person);
                             db.SaveChanges();
                             Console.WriteLine("New person was add.");
-                            
                         }
                         else
-                            Console.WriteLine("Без входящего параметра");
+                            Console.WriteLine("Некоректная строка.");
                         break;
                     case "3":
                         Console.WriteLine($"Вывод уникальных записей");
-                        //TODO определить шаблон фильтрации записей
+                        
                         using (var db = new MainDBContext())
                         {
                             var persons = db.Persons!.ToList();
@@ -143,7 +137,6 @@ namespace MainProj
                         }
                         break;
                     case "5":
-                        Console.WriteLine($"Обработка события {action}");
                         using (var db = new MainDBContext())
                         {
                             var sw = Stopwatch.StartNew();
@@ -160,34 +153,26 @@ namespace MainProj
                         }
                         break;
                     case "6":
-                        Console.WriteLine($"Обработка события {action}");
+                        // надо как то проверить наличие функции, мб использовать SqlCommand SqlConnect
                         using (var db = new MainDBContext())
                         {
-                            //проверка существования процедуры
-                            SqlParameter param2 = new ()
-                            {
-                                ParameterName = "IsCheck"
-                            };
-                            try
-                            {
-                                //скрипт создания процедуры
-                                db.Database.ExecuteSqlRaw(@"create procedure IsCheck
-                                    @res int output
-                                    as
-                                    begin
-                                    declare @k as int
-                                    select @k =Count(*) from sys.indexes as si
-                                    where si.name = 'ix_test'
-                                    if(@k = 1)
-                                    set @res = @k
-                                    else
-                                    set @res = @k
-                                    end");
-                            }
-                            catch (Exception)
-                            {
+                            //проверка существования процедуры IsCheck
+                            //TODO Проработать вопрос работы с функцией БД Object_Id()
 
-                            }
+
+                            //скрипт создания процедуры
+                            db.Database.ExecuteSqlRaw(@"create procedure IsCheck
+                                @res int output
+                                as
+                                begin
+                                declare @k as int
+                                select @k =Count(*) from sys.indexes as si
+                                where si.name = 'ix_test'
+                                if(@k = 1)
+                                set @res = @k
+                                else
+                                set @res = @k
+                                end");
 
                             //проверка существования составного индекса
                             // создаем параметр
@@ -211,7 +196,6 @@ namespace MainProj
                                 {
                                     //если нет то отправялем sql на создание индекса
                                     db.Database.ExecuteSqlRaw(@"CREATE NONCLUSTERED INDEX ix_test on dbo.Persons(Gender, LastName, FirstName, MiddleName)");
-
                                 }
                             }
                             Console.WriteLine("Успешно");
@@ -231,9 +215,11 @@ namespace MainProj
             }
             else
                 Console.WriteLine("No action set");
-
         }
-
+        /// <summary>
+        /// Генератор пола.
+        /// </summary>
+        /// <returns>Пол.</returns>
         private static string GetRndGender()
         {
             var rnd = new Random();
@@ -242,7 +228,13 @@ namespace MainProj
                 return "Male";
             return "Female";
         }
-
+        /// <summary>
+        /// Генерация даты рождения.
+        /// </summary>
+        /// <param name="year">Год.</param>
+        /// <param name="months">Месяц.</param>
+        /// <param name="days">День.</param>
+        /// <returns>Полученная дата рождения.</returns>
         private static DateTime GetDateBirthday(int year, int months, int days)
         {
             var t = DateTime.Now;
@@ -251,6 +243,11 @@ namespace MainProj
             temp = temp.AddDays(-days);
             return temp;
         }
+        /// <summary>
+        /// Вычисление полных лет.
+        /// </summary>
+        /// <param name="bithday">Дата отсчета.</param>
+        /// <returns>Полных лет.</returns>
         private static int GetFull(DateTime bithday)
         {
             var year = DateTime.Now.Year - bithday.Year;
@@ -260,7 +257,11 @@ namespace MainProj
             //TODO Доделать если нужно дать возраст с учетом времени
             return year;
         }
-
+        /// <summary>
+        /// Парс данных.
+        /// </summary>
+        /// <param name="args">Даные.</param>
+        /// <returns>Шаблон для генерации персоны.</returns>
         private static string[] ParseInputString(string[] args)
         {
             string[] temp = new string[5];
@@ -270,11 +271,15 @@ namespace MainProj
             _ = ParseInputParam(args[1], temp);
             return temp;
         }
-
+        /// <summary>
+        /// Разбиение на ФИО
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="temp"></param>
+        /// <returns></returns>
         private static string[] ParseInputParam(string v, string[] temp)
         {
             int index = 0;
-
             List<char> list = new()
             {
                 v[0]
@@ -292,8 +297,6 @@ namespace MainProj
                 }
             }
             temp[index] = string.Join("", list);
-
-
             return temp;
         }
     }
