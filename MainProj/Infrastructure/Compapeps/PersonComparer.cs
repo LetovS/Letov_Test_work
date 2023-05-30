@@ -2,8 +2,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace MainProj
+namespace MainProj.Infrastructure.Compapeps
 {
+    /// <summary>
+    /// Для сравнения объектов в Distinct'a
+    /// </summary>
     internal class PersonComparer : IEqualityComparer<Person>
     {
         public bool Equals(Person? x, Person? y)
