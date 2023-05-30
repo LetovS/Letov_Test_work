@@ -11,7 +11,7 @@ namespace MainProj.Models
     /// <summary>
     /// Сущность БД
     /// </summary>
-    [Index(nameof(Gender), nameof(LastName), nameof(FirstName), nameof(MiddleName), Name ="ix_test")]
+    
     internal class Person
     {
         public int PersonID { get; set; }
@@ -49,8 +49,6 @@ namespace MainProj.Models
             }
             throw new InvalidCastException();
         }
-        //public string? Description { get; set; }
-       // public string? Description2 { get; set; }
         public override int GetHashCode()
         {
             return base.GetHashCode();
