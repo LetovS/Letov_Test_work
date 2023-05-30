@@ -32,50 +32,34 @@ namespace MainProj
                 switch (action)
                 {
                     case "1":
-                        if (!MainDBContext.IsCreated())
+                        using (var db = new MainDBContext())
                         {
-                            var db = new MainDBContext();
                             Console.WriteLine("Database was create.");
                         }
-                        else
-                            Console.WriteLine("Database already create.");
                         break;
                     case "2":
                         Console.WriteLine($"Обработка события {action}");
                         if (args.Length > 1)
                         {
-                            if (MainDBContext.IsCreated())
+                            //TODO где то нужно проверять строку на валидность
+                            // распарсить входящую строку
+                            string[] values = ParseInputString(args);
+                            // создать персону
+                            DateTime date = DateTime.Parse(values[3]);
+                            var person = new Person()
                             {
-                                // распарсить входящую строку
-                                string[] values = ParseInputString(args);
-                                // создать персону
-                                DateTime date = DateTime.Parse(values[3]);
-                                var person = new Person()
-                                {
-                                    LastName = values[0],
-                                    FirstName = values[1],
-                                    MiddleName = values[2],
-                                    Bithday = date,
-                                    Gender = values[4]
-                                };
-                                // проверить есть ли в БД
-                                using var db = new MainDBContext();
-
-                                var collections = db.Persons!.ToList();
-
-                                if (!collections.Contains(person))
-                                {
-                                    db.Persons!.Add(person);
-                                    db.SaveChanges();
-                                    Console.WriteLine("New person was add.");
-                                    return;
-                                }
-                                else
-                                    Console.WriteLine("Person already exsist in DB.");
-                            }
-                            else
-                                Console.WriteLine("Database wasn't create.");
-                            // ответ успешно\не успешно
+                                LastName = values[0],
+                                FirstName = values[1],
+                                MiddleName = values[2],
+                                Bithday = date,
+                                Gender = values[4]
+                            };
+                            using var db = new MainDBContext();
+                            var collections = db.Persons!.ToList();
+                            db.Persons!.Add(person);
+                            db.SaveChanges();
+                            Console.WriteLine("New person was add.");
+                            
                         }
                         else
                             Console.WriteLine("Без входящего параметра");
@@ -83,79 +67,65 @@ namespace MainProj
                     case "3":
                         Console.WriteLine($"Обработка события {action}");
                         //TODO определить шаблон фильтрации записей
-                        if (MainDBContext.IsCreated())
+                        if (args.Length == 2)
                         {
-                            if (args.Length == 2)
-                            {
-                                //TODO Реализовать соритровку по дате рождения, полу
-                                //TODO обдумать где выполнять сортировку (в БД\в приложение)
-                                Console.WriteLine("Входящий параметр фильтра: " + args[1]);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Номинальный фильтр: \"ФИО+др\"");
-                                using var db = new MainDBContext();
-                                var dataOrdersByLFM_birthday = db.Persons!
-                                                                .OrderBy(x => x.LastName)
-                                                                .ThenBy(x => x.FirstName)
-                                                                .ThenBy(x => x.MiddleName)
-                                                                .ToList();
-                                Console.WriteLine("Выводятся данные согласно фильтру");
-                                foreach (var person in dataOrdersByLFM_birthday)
-                                {
-                                    Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
-                                }
-                            }
-                        }                         
+                            //TODO Реализовать соритровку по дате рождения, полу
+                            //TODO обдумать где выполнять сортировку (в БД\в приложение)
+                            Console.WriteLine("Входящий параметр фильтра: " + args[1]);
+                        }
                         else
-                            Console.WriteLine("Database wasn't create.");
+                        {
+                            Console.WriteLine("Номинальный фильтр: \"ФИО+др\"");
+                            using var db = new MainDBContext();
+                            var dataOrdersByLFM_birthday = db.Persons!
+                                                            .Distinct()
+                                                            .OrderBy(x => x.LastName)
+                                                            .ThenBy(x => x.FirstName)
+                                                            .ThenBy(x => x.MiddleName)
+                                                            .ToList();
+                            Console.WriteLine("Выводятся данные согласно фильтру");
+                            foreach (var person in dataOrdersByLFM_birthday)
+                            {
+                                Console.WriteLine($"{person.LastName} {person.FirstName} {person.MiddleName} {person.Bithday:dd.MM.yyyy} {person.Gender} {GetFull(person.Bithday)}");
+                            }
+                        }
                         break;
                     case "4":
-                        Console.WriteLine($"Обработка события {action}");
-                        if (MainDBContext.IsCreated())
-                        {                            
-                            if(!(args.Length == 2 && int.TryParse(args[1], out int count)))
-                            {
-                                count = 1000000;
-                            }                      
-                            using var db = new MainDBContext();
+                        Console.WriteLine($"Обработка события {action}");                                                   
+                        if(!(args.Length == 2 && int.TryParse(args[1], out int count)))
+                        {
+                            count = 1000000;
+                        }
+                        using (MainDBContext db = new ())
+                        {
                             var sw = Stopwatch.StartNew();
                             List<Person> persons = new();
                             var rnd = new Random();
-
+                            //TODO обдумать над использованием 
                             Person person;
-                            int curent = 0; 
-
-                            while(curent < count)
+                            int curent = 0;
+                            while (curent < count)
                             {
                                 person = new Person
                                 {
                                     LastName = Name.Last(),
                                     FirstName = Name.First(),
                                     MiddleName = Name.Middle(),
-                                    Bithday = GetDateBirthday(rnd.Next(18,30), rnd.Next(10), rnd.Next(15)),
+                                    Bithday = GetDateBirthday(rnd.Next(18, 30), rnd.Next(10), rnd.Next(15)),
                                     Gender = GetRndGender()
                                 };
                                 persons.Add(person);
                                 person = null!;
                                 curent++;
-                                //TODO Проверка на дубликат при добавлении в список выкл
-                                //if (!persons.Contains(person))
-                                //{
-                                //    persons.Add(person);
-                                //    person = null!;
-                                //    curent++;
-                                //}
-
                             }
                             db.Persons!.AddRange(persons);
                             db.SaveChanges();
-                            using var db1 = new MainDBContext();
-                            List<Person> users = new();
-                            Person temp;
+                            persons.Clear();
+                            
+                            person = null!;
                             for (int i = 0; i < 100000; i++)
                             {
-                                temp = new Person
+                                person = new Person
                                 {
                                     LastName = "F" + Guid.NewGuid().ToString()[0..5],
                                     FirstName = "F" + Guid.NewGuid().ToString()[0..5],
@@ -163,24 +133,19 @@ namespace MainProj
                                     Gender = "Male",
                                     Bithday = DateTime.Parse(DateTime.Now.ToShortDateString()),
                                 };
-                                users.Add(temp);
+                                persons.Add(person);
                             }
-                            db.AddRange(users);
+                            db.AddRange(persons);
                             Console.WriteLine("Сохранение в БД");
                             db.SaveChanges();
                             Console.WriteLine($"Выполнено за {sw.Elapsed.TotalSeconds}");
                         }
-                        else
-                            Console.WriteLine("Database wasn't create.");
-
                         break;
                     case "5":
                         Console.WriteLine($"Обработка события {action}");
-                        if (MainDBContext.IsCreated())
+                        using (var db = new MainDBContext())
                         {
-                            using var db = new MainDBContext();
                             var sw = Stopwatch.StartNew();
-                            
                             var res = db
                                         .Persons!
                                         .Where(x =>
@@ -192,38 +157,19 @@ namespace MainProj
                             Console.WriteLine("Время выборки: " + sw.Elapsed.TotalSeconds);
                             Console.WriteLine("Число найденных записей" + " " + res.Length);
                         }
-                        else
-                            Console.WriteLine("Database wasn't create.");
                         break;
                     case "6":
                         Console.WriteLine($"Обработка события {action}");
-                        // создание индекса для ускорения поиска
-                        /*
-                         * Надо отправить запрос на создание индекса
-                         * 
-                         * 
-                         * */
-                        if (MainDBContext.IsCreated())
+                        using (var db = new MainDBContext())
                         {
-                            using var db = new MainDBContext();
-                            //проверить существует ли индекс
-                            //реализовать процедуру возвращающая 1 есть, 0 нет
-                            // если есть то ничего не делаем, иначе создаем идекс/накатываем миграцию
-
-                            SqlParameter param = new()
-                            {
-                                ParameterName = "@res",
-                                SqlDbType = System.Data.SqlDbType.Int,
-                                Direction = System.Data.ParameterDirection.Output
-                            };
-                            //проверка наличия процедуры
+                            //проверка существования процедуры
                             SqlParameter param2 = new SqlParameter()
                             {
                                 ParameterName = "IsCheck"
                             };
-
                             try
                             {
+                                //скрипт создания процедуры
                                 db.Database.ExecuteSqlRaw(@"create procedure IsCheck
                                     @res int output
                                     as
@@ -241,24 +187,34 @@ namespace MainProj
                             {
 
                             }
+
+                            //проверка существования составного индекса
+                            // создаем параметр
+                            SqlParameter param = new()
+                            {
+                                ParameterName = "@res",
+                                SqlDbType = System.Data.SqlDbType.Int,
+                                Direction = System.Data.ParameterDirection.Output
+                            };
+                            
+                            //выполняем запрос к бд                            
                             db.Database.ExecuteSqlRaw("IsCheck @res OUT", param);
                             if (param.Value is Int32 res)
                             {
+                                //value = 1 значит в табл индексов есть 1 запись с таким названием
                                 if (res == 1)
                                 {
                                     Console.WriteLine("Добавлен индекс");
                                 }
                                 else
                                 {
+                                    //если нет то отправялем sql на создание индекса
                                     db.Database.ExecuteSqlRaw(@"CREATE NONCLUSTERED INDEX ix_test on dbo.Persons(Gender, LastName, FirstName, MiddleName)");
-                
-                                    Console.WriteLine("No");
+
                                 }
                             }
                             Console.WriteLine("Успешно");
                         }
-                        else
-                            Console.WriteLine("Database wasn't create.");
                         break;
                     case "7":
                         Console.WriteLine($"Удаление БД и {action}");
@@ -267,7 +223,6 @@ namespace MainProj
                             try
                             {
                                 new MainDBContext().EnsureDeleteDB();
-                                Console.WriteLine("Уже есть.");
                             }
                             catch (Exception e)
                             {
